@@ -6,6 +6,9 @@ import cx_Oracle
 import tool
 
 app = Flask(__name__)
+
+app.secret_key = 'secret_key'
+
 CORS(app)
 
 @app.get('/')
