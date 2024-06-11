@@ -63,22 +63,26 @@ def lunch_proc():
 
         print('-> prompt:', prompt)
         
-        format = '''{"res":"음식 추천", "recipe":"레시피 내용"}'''  # 레시피 내용은 실제 레시피로 대체되어야 합니다.
+        format = '''
+        {"res":"음식 추천", 
+        "recipe":"레시피 내용"
+        }
+        '''  # 레시피 내용은 실제 레시피로 대체되어야 합니다.
         
         response = tool.answer('너는 음식 추천 시스템이야.', prompt, format)
         print('-> response:', response)
 
         # 응답을 JSON으로 파싱
-        response_data = json.loads(response)
+        resp = jsonify({'res': response['res'], 'recipe': response['recipe']})
         
         cs.execute("""
             INSERT INTO L_RECOM (L_NO, ACCOUNTNO, L_MENU, L_RECIPE, L_DATE)
             VALUES (L_RECOM_SEQ.nextval, :1, :2, :3, sysdate)
-        """, (accountno, response_data['res'], response_data['recipe']))
+        """, (accountno, response['res'], response['recipe']))
         
         conn.commit()
 
-        return jsonify(response_data)
+        return resp
     except Exception as e:
         print('Error:', str(e))
         return jsonify({'error': str(e)}), 500
