@@ -62,7 +62,7 @@
             document.getElementById("processing").innerHTML = '<img src="/static/img/progress.gif" style="width: 3%; margin-top: 10px;">';
 
             // await: 처리가 끝날때까지 대기 상태로 진입, 다른 기능이 실행 정지됨.
-            await fetch("https://port-0-openai-1lx8pnj08.sel5.cloudtype.app/", {
+            await fetch("https://port-0-openai-1lx8pnj08.sel5.cloudtype.app", {
               method: "post",
               headers: {
                 "Content-Type": "application/json",
