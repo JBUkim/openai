@@ -57,15 +57,3 @@ def lunch_proc():
     except Exception as e:
         print('Error:', str(e))
         return {'error': str(e)}, 500
-
-
-
-
-
-
-app.run(host="0.0.0.0", port=5000, debug=True)  # 0.0.0.0: 모든 Host 에서 접속 가능, debug=True: 소스 변경시 자동 restart
-
-'''
-activate ai
-python lunch.py
-'''

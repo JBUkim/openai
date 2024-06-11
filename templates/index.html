@@ -60,7 +60,7 @@
             document.getElementById("lunch").setAttribute("value", lunch);
             document.getElementById("processing").innerHTML = '<img src="/static/images/progress.gif" style="width: 3%; margin-top: 10px;">';
 
-            await fetch("http://127.0.0.1:5000/", {
+            await fetch("https://port-0-openai-1lx8pnj08.sel5.cloudtype.app/", {
               method: "post",
               headers: {
                 "Content-Type": "application/json",
