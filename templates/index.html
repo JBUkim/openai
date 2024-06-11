@@ -58,7 +58,7 @@
             console.log("-> lunch: " + lunch);
 
             document.getElementById("lunch").setAttribute("value", lunch);
-            document.getElementById("processing").innerHTML = '<img src="/static/images/progress.gif" style="width: 3%; margin-top: 10px;">';
+            document.getElementById("processing").innerHTML = '<img src="/static/img/progress.gif" style="width: 3%; margin-top: 10px;">';
 
             await fetch("https://port-0-openai-1lx8pnj08.sel5.cloudtype.app/", {
               method: "post",
@@ -131,11 +131,12 @@
       </div>
 
       <br /><br />
-      <div id="result"></div>
-      <br />
       <button type="button" id="send" class="btn btn-info btn-sm">추천 받기</button>
       <br />
       <div id="processing"></div>
+      <br />
+      <div id="result"></div>
+      <br />
     </div>
   </body>
 </html>
