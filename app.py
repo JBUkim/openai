@@ -13,8 +13,8 @@ def index():
     
     return render_template('./index.html', filenames=filenames) # html template으로 데이터 전달
 
-# http://localhost:5000/movie
-@app.post('/movie')
+# http://localhost:5000/
+@app.post('/')
 def movie_proc():
     data = request.json
     movie= data['movie']
