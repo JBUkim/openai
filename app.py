@@ -14,7 +14,7 @@ def lunch_form():
     cuisine_options = ['한식', '중식', '일식', '양식', '아시아']
     situation_options = ['혼밥', '친구', '연인', '가족', '모임']
     
-    return render_template('lunch.html', meal_options=meal_options, cuisine_options=cuisine_options, situation_options=situation_options)
+    return render_template('index.html', meal_options=meal_options, cuisine_options=cuisine_options, situation_options=situation_options)
 
 
 
