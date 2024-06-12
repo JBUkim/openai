@@ -32,7 +32,8 @@ def lunch_proc():
     
     os.putenv('NLS_LANG', 'KOREAN_KOREA.KO16MSWIN949')
 
-    conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
+    # conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
+    conn = cx_Oracle.connect('LD_LIBRARY_PATH')
     cs = conn.cursor()
 
     try:
