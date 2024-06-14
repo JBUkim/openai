@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper Speech-to-Text 사용하기</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="text/javascript">
+    window.onload = () => {
+      let send = document.getElementById('send');
+      send.addEventListener("click", async function () {
+        let form_data = new FormData();
+        let cnt = document.getElementById('file').files.length; // 태그 id가 'file'인 태그의 파일 갯수
+
+        if (cnt == 0){
+          msg.innerHTML = '<span style="color: led">파일 선택이 안되었습니다.</span>';
+          return; // 실행 종료
+        }
+
+        // 파일이 있으면 파일 객체를 FormData 클래스의 객체에 저장
+        for (var x = 0; x < cnt; x++) {
+          form_data.append("file", document.getElementById('file').files[x]);
+        }
+
+        msg.innerHTML = '<img src="/static/images/progress.gif" style="width: 10%; margin-top: 0px;">'
+
+        await fetch("http://192.168.2.6:5000/menu_web", {
+          "method": "post",
+          body: form_data
+        })
+        .then((response) => response.json()) // 응답 문자열 추출
+        .then((data) => {
+          let message = data.message;
+          let button = '<br><br><button type="button" class="btn btn-info btn-sm" onclick="window.location.href=\'http://localhost:9093/answer/list\'">목록으로</button>';
+          msg.innerHTML = message + ' ' + button;
+        });
+
+      });
+    }
+
+  </script>
+
+</head>
+<body>
+  <div style="margin: 10px auto; width: 90%; text-align: center;">
+    <h4>Aajx 기반 Whisper mp3/mp4 업로드 서비스</h4>
+    <form>
+      <div class="d-flex justify-content-center">
+        <input type='file' id='file' class="btn btn-info btn-sm" style='margin-right: 5px;'>
+
+        <button type='button' id='send' class="btn btn-info btn-sm">서비스 요청</button> <br>
+      </div>
+    </form>
+    
+    <!--  업로드 관련 메시지 출력 -->
+    <DIV id="msg" style='margin: 20px auto; width: 800px; text-align: center;'></DIV>
+  
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>챗봇</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      .chat-container {
+        width: 100%;
+        height: 600px;
+        overflow: auto;
+        border: 1px solid #ccc;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("/static/images/background.jpg");
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        margin-bottom: 5px;
+      }
+
+      .container {
+        width: 100%;
+        margin: 0 auto;
+        padding: 10px;
+      }
+      .container h3 {
+        text-align: left;
+        padding: 5px 5px 5px 15px; /* top, right, bottom, left */
+        color: #ffbb00;
+        border-left: 3px solid #ffbb00;
+        margin-bottom: 20px;
+      }
+      .chatting_pannel {
+        /* 투명도 지정: linear-gradient(rgba(255,255,255,0.6),rgba(255,255,255,0.6)) */
+        padding: 5px;
+      }
+      .chatting_pannel p {
+        font-size: 16px;
+        border-radius: 10px;
+        display: inline-block;
+        padding: 2px 5px;
+      }
+      input {
+        width: 60%;
+        height: 25px;
+      }
+      .send_msg {
+        text-align: right;
+        color: #000000;
+        background-color: yellow;
+        margin-left: 40%;
+      }
+      .receive_msg {
+        text-align: left;
+        color: #ffffff;
+        background-color: #7a7373;
+        margin-right: 40%;
+      }
+
+      a:link {
+        /* 방문전 상태 */
+        text-decoration: none; /* 밑줄 삭제 */
+        color: #ffffff;
+      }
+
+      a:visited {
+        /* 방문후 상태 */
+        text-decoration: none; /* 밑줄 삭제 */
+        color: #ffffff;
+      }
+
+      a:hover {
+        /* A 태그에 마우스가 올라간 상태 */
+        text-decoration: underline; /* 밑줄 출력 */
+        color: #ffffff;
+      }
+
+      a:active {
+        /* A 태그를 클릭한 상태 */
+        text-decoration: underline; /* 밑줄 출력 */
+        color: #ffffff;
+      }
+    </style>
+    <script type="text/javascript">
+      window.onload = () => {
+        document.getElementById("question").addEventListener("keydown", function (key) {
+          if (key.keyCode == 13) {
+            // Enter
+            send();
+          }
+        });
+
+        document.getElementById("sendBtn").addEventListener("click", function () {
+          send();
+        });
+
+        document.getElementById("closeBtn").addEventListener("click", function () {
+          window.close(); // window.open()으로 열린 창만 닫음.
+        });
+      };
+
+      function send() {
+        let question = document.getElementById("question").value;
+        let chatting_pannel = document.getElementById("chatting_pannel");
+        let newMessage = document.createElement("div");
+        newMessage.style.textAlign = "right";
+        newMessage.innerHTML = "<p class='send_msg'>" + question + "</p>";
+        chatting_pannel.appendChild(newMessage);
+
+        document.getElementById("question").value = "";
+        let chatContainer = document.querySelector(".chat-container");
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        fetch("/chatbot", {
+          method: "post",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: question }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            res = data["res"]; // 응답 문자열
+
+            if (res != null && res.trim() != "") {
+              var resmsg = document.createElement("p");
+              resmsg.className = "receive_msg";
+              resmsg.innerHTML = "A.I.: " + res; // Chatbot이 보내 문자열
+              chatting_pannel.appendChild(resmsg);
+              chatting_pannel.appendChild(document.createElement("br"));
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container" class="container">
+      <h3>실시간 문의</h3>
+      <div class="chat-container">
+        <div id="chatting_pannel" class="chatting_pannel"></div>
+      </div>
+      <div class="d-flex justify-content-center">
+        <span style="margin-top: 3px; margin-right: 5px">메시지</span>
+        <input
+          id="question"
+          name="question"
+          placeholder="보내실 메시지를 입력하세요."
+          value="안녕하세요."
+          style="margin-right: 5px; margin-top: 3px"
+        />
+        <button id="sendBtn" class="btn btn-info btn-sm" style="padding: 0px 5px; margin-top: 3px; margin-right: 5px; height: 24px">보내기</button>
+        <button id="closeBtn" class="btn btn-info btn-sm" style="padding: 0px 5px; margin-top: 3px; margin-right: 5px; height: 24px">닫기</button>
+      </div>
+    </div>
+  </body>
+</html>
