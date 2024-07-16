@@ -253,8 +253,8 @@ def menu_web_proc():
             cs = conn.cursor()
             
             cs.execute("""
-                    INSERT INTO ai_search (searchno, img_search, img_search_save, img_search_thumb, img_search_size, accountno, answerno)
-                    VALUES (ai_search_seq.nextval, :1, :2, :3, :4, :5, ai_answer_seq.nextval)
+                    INSERT INTO ai_search (searchno, img_search, img_search_save, img_search_thumb, img_search_size, accountno, answerno, rdate)
+                    VALUES (ai_search_seq.nextval, :1, :2, :3, :4, :5, ai_answer_seq.nextval, sysdate)
                     """, (f.filename, f.filename, thumbnail_filename, file_size, accountno))
             
             cs.execute("SELECT ai_search_seq.CURRVAL FROM DUAL")
