@@ -1,0 +1,420 @@
+/* 폰트 선언 */
+@font-face {
+  font-family: "SokchoBadaDotum";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2402_1@1.0/SokchoBadaDotum.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 모든 태그에 적용 */
+
+
+
+
+.loginbody{
+  margin: 0;
+  padding: 0;
+  
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Jost', sans-serif;
+  background: url("/images/loginimg.jpg");
+  background-size: cover;
+  transition: background-image 1s ease-in-out;
+}
+
+.signupbody{
+margin: 0;
+  padding: 0;
+  
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Jost', sans-serif;
+  background: url("/images/register.jpg");  
+  background-size: cover;
+transition: background-image 1s ease-in-out;
+width: 100%;
+}
+
+.main{
+  margin:auto;
+  margin-top: 150px;
+  width: 500px;
+  height: 650px;
+  background: red;
+  overflow: hidden;
+  background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;
+  border-radius: 10px;
+  box-shadow: 5px 20px 50px #000;
+  transition: width 0.5s ease-in-out;
+}
+#chk{
+  display: none;
+}
+#mainbody{
+  display: none;
+}
+
+.signup{
+  position: relative;
+  width:100%;
+  height: 100%;
+}
+
+.signup input{
+  display: inline-block; /* 인라인 블록 요소로 배치하여 가로로 배치됨 */
+  margin-right: 20px; /* 각 요소 사이의 간격 조절 */
+  border: 3px solid black;
+}
+
+.signup input:focus{
+  border: 3px solid black;
+   
+  border-color: #f0094a;
+ 
+}
+
+
+.signleft{
+  float: left;
+  height: 100%;
+  width: 50%;
+  justify-content: center;
+  text-align: center;
+  margin:auto;
+  display: flex;
+  flex-direction: column; /* 수직으로 정렬 */
+  align-items: center; /* 왼쪽 정렬 */
+}
+
+
+
+.signright{
+  position: relative;
+  float: left;
+  height: 100%;
+  width: 50%;
+  justify-content: center;
+  text-align: center;
+  margin:auto;
+  display: flex;
+  flex-direction: column; /* 수직으로 정렬 */
+  align-items: center; /* 왼쪽 정렬 */
+}
+
+
+.signemail input {
+  width: 90%; /* 입력 필드가 부모 요소의 전체 너비를 차지 */
+}
+
+.zipcode input{
+  width: 75%;
+}
+
+.msg{
+  color: white;
+}
+
+#btn_checkID {
+  margin-top: 10px; /* 이메일 입력 필드와 버튼 사이의 간격 조정 */
+}
+
+
+label{
+  color: #fff;
+  font-size: 2.3em;
+  justify-content: center;
+  display: flex;
+  margin: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .5s ease-in-out;
+}
+
+.signinput{
+    width: 90%;
+  height: 10px;
+  background: rgb(255, 255, 255);
+  justify-content: center;
+  display: flex;
+  margin: 20px auto;
+  padding: 12px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  
+}
+
+.logininput{
+    width: 60%;
+  height: 10px;
+  background: #e0dede;
+  justify-content: center;
+  display: flex;
+  margin: 20px auto;
+  padding: 12px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+}
+
+.signbnt{
+  width: 60%;
+  height: 40px;
+  margin: 10px auto;
+  justify-content: center;
+  display: block;
+  color: #fff;
+  background: brown;
+  font-size: 1em;
+  font-weight: bold;
+  margin-top: 30px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  transition: .2s ease-in;
+  cursor: pointer;
+}
+
+.loginbnt{
+  width: 60%;
+  height: 40px;
+  margin: 10px auto;
+  justify-content: center;
+  display: block;
+  color: #fff;
+  background: #573b8a;
+  font-size: 1em;
+  font-weight: bold;
+  margin-top: 30px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  transition: .2s ease-in;
+  cursor: pointer;
+}
+.signbnt:hover{
+  background: rgb(255, 128, 64);
+}
+
+.loginbnt:hover{
+  background: #6d44b8;
+}
+
+.login{
+  height: 460px;
+  background: #eee;
+  border-radius: 60% / 10%;
+  transform: translateY(-180px);
+  transition: .8s ease-in-out;
+}
+.login label{
+  color: #573b8a;
+  transform: scale(.6);
+}
+
+#chk:checked ~ .login{
+  transform: translateY(-500px);
+  
+}
+
+#mainbody:checked ~ .main{
+  transition: width 0.5s ease-in-out;
+  width: 350px;
+  height: 500px;
+}
+
+
+#chk:checked ~ .login label{
+  transform: scale(1);  
+}
+#chk:checked ~ .signup label{
+  transform: scale(.6);
+}
+
+.btn {
+  margin-right: 20px;
+  width: 140px;
+  height: 35px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+ 
+}
+
+
+
+
+.btn-junbok {
+  background: #f0094a;
+  background: linear-gradient(0deg, #f0094a 0%,  #f0094a 100%);
+  border: none;
+  
+}
+.btn-junbok:before {
+  height: 0%;
+  width: 2px;
+}
+.btn-junbok:hover {
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .5), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.2),
+    inset 4px 4px 6px 0 rgba(0, 0, 0, .4);
+}
+
+
+
+.file-upload-wrapper {
+  
+  
+  margin-top: 20px;
+  position: relative;
+  width: 80%;
+  height:20px;
+ }
+  
+ .file-upload-wrapper:after {
+    content: attr(data-text);
+    font-size: 18px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+    
+    padding-bottom: 20px;
+    padding-right: 15px;
+    display: block;
+    width: calc(100% - 40px);
+    pointer-events: none;
+    z-index: 20;
+    height: 30px;
+    line-height: 30px;
+    color: #999;
+    border-radius: 5px 10px 10px 5px;
+    font-weight: 300;
+  }
+  
+  .file-upload-wrapper:before {
+    content: 'Upload';
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    width: 63px;
+    height: 30px;
+    background: #4daf7c;;
+    color: #fff;
+    font-weight: 700;
+    z-index: 25;
+    font-size: 13px;
+    line-height: 30px;;
+    padding: -10px 10px;
+    text-transform: uppercase;
+    pointer-events: none;
+    border-radius: 0 5px 5px 0;
+    
+  }
+  
+  .file-upload-wrapper:hover {
+    
+  }
+  
+  .file-upload-wrapper:hover:before {
+      background: darken(#4daf7c, 10%);
+    }
+  
+  .file-upload-wrapper input {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 99;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    
+  }
+
+.file-upload-wrapper-none{
+  display: none;
+}
+
+/** 네브바 **/
+/**navbar 글씨 색깔 변경 */
+
+/**navbar 글씨 색깔 변경 */
+
+.navbar.scrolled {
+ position: fixed;
+  width: 100%;
+  top: 0;
+  background-color: rgb(0, 128, 0) !important;
+  color: white !important;
+  border: 0px !important;
+  z-index: 999;
+  
+}
+
+.navbar.scrolled a{
+   color: white !important;
+}
+
+
+.container-fluid a{
+  color: white;
+}
+
+.navbar{
+  position: fixed;
+  width: 100%;
+  top: 0;
+   font-family: "SokchoBadaDotum";
+  font-size: 14px;
+   margin: 0px; /* top right bottom left */
+  padding: 0px;
+  border: 0px !important;
+  background-color: rgb(0, 128, 0) !important;
+  color: white !important;
+}
+
+
+
+
+.navbar a{
+   color: white !important;
+   font-size: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

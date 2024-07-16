@@ -1,11 +1,14 @@
 import json
 import os
 import base64
+import requests
 from PIL import Image
-from flask import Flask, request, render_template, session, jsonify
+from flask import Flask, redirect, request, render_template, session, jsonify
 from flask_cors import CORS
 import cx_Oracle
 import tool
+
+api_key=os.getenv('OPENAI_API_KEY')
 
 def create_thumbnail(image_path, thumbnail_path, width, height):
     with Image.open(image_path) as img:
@@ -111,11 +114,11 @@ import logging
 import sys
 from llama_index.core import ServiceContext, VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 
-# # 로그 레벨 설정
-# logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL, force=True)
+# 로그 레벨 설정
+logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL, force=True)
 
 # # 문서 로드(data 폴더에 문서를 넣어 두세요)
-# documents = SimpleDirectoryReader("data").load_data() # /openai/llama_index/data/chatbot.txt 저장
+# documents = SimpleDirectoryReader("data").load_data() # data 폴더에 pdf 저장
 
 # from llama_index.llms.openai import OpenAI
 
@@ -183,6 +186,8 @@ def chatbot_proc():
     # print('-' * 80)
     return jsonify(obj) # dictionary -> json + HTTP 응답 객체
 
+# 허용 가능한 파일 확장자 설정 (예: 이미지 파일만 허용하도록 설정)
+app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'png', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -230,7 +235,7 @@ def menu_web_proc():
     else: # 25 MB 이하
         if f and allowed_file(f.filename): # 허용 가능한 파일 확장자인지 확인
             # 저장할 경로 지정 (예: 'uploads' 폴더에 저장)
-            upload_folder = '../../deploy/team3_v2sbm3c/contents/storage'
+            upload_folder = 'C:\\kd\\deploy\\team3_v2sbm3c\\content\\storage\\'
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
 
