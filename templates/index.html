@@ -79,7 +79,7 @@
                 console.log(data);
                 result.innerHTML = "음식: " + data["res"]; // 응답 문자열 출력
                 result.innerHTML += "<br>레시피: " + data["recipe"]; // 레시피 추가 출력
-                result.innerHTML += '<div class="d-flex justify-content-center mt-3"><a href="http://localhost:9093/lunch/list" class="btn btn-primary border-0 border-secondary py-2 px-3 rounded-pill text-black">목록으로 이동</a></div>';
+                result.innerHTML += '<div class="d-flex justify-content-center mt-3"><a href="http://15.165.140.165:9093/lunch/list" class="btn btn-primary border-0 border-secondary py-2 px-3 rounded-pill text-black">목록으로 이동</a></div>';
                 document.getElementById("processing").innerHTML = ""; // animation 삭제
               });
           } else if (pick_count > 5) {

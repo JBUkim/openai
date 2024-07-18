@@ -218,7 +218,7 @@ def menu_web_form():
         return render_template("menu_web.html")
     # accountno와 managerno 모두 존재하지 않는 경우
     else:
-        return redirect("http://localhost:9093/answer/list")
+        return redirect("http://15.165.140.165:9093/answer/list")
 
 # Ajax 기반 파일 업로드 처리    
 @app.post("/menu_web") # http://localhost:5000/menu_web
@@ -241,7 +241,10 @@ def menu_web_proc():
     else: # 25 MB 이하
         if f and allowed_file(f.filename): # 허용 가능한 파일 확장자인지 확인
             # 저장할 경로 지정 (예: 'uploads' 폴더에 저장)
-            upload_folder = '../../deploy/team3_v2sbm3c/contents/storage'
+            upload_folder = 'C:\\kd\\deploy\\team3_v2sbm3c\\contents\\storage'
+            # 우분투
+            # upload_folder = '/home/ubuntu/deploy/team3_v2sbm3c/contents/storage/'
+            
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
 
@@ -422,6 +425,83 @@ font_path = 'C:/Windows/Fonts/malgun.ttf'
 font_name = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font_name)
 
+from flask import Flask, render_template
+
+import platform
+import matplotlib.pyplot as plt
+from matplotlib import font_manager, rc
+import re
+from collections import Counter
+import numpy as np
+from konlpy.tag import Hannanum
+import pandas as pd
+from wordcloud import WordCloud
+from PIL import Image
+
+
+
+# 데이터베이스에서 BCONTENT 필드의 데이터를 가져오는 함수
+def cloud_data():
+    cs.execute("SELECT BCONTENT FROM BOARD")
+    return cs.fetchall()
+
+# 텍스트에서 한글 단어만 추출하는 함수
+def process_text(text):
+    words = re.findall(r'\b[가-힣]+\b', text)
+    return words
+
+# 워드클라우드 생성 함수
+def create_wordcloud():
+    data = cloud_data()
+    content_list = [row[0].read() for row in data]
+    all_content = ' '.join(content_list)
+    processed_content = re.sub('[^가-힣]', ' ', all_content)
+
+    words = process_text(processed_content)
+    word_counts = Counter(words)
+
+    han = Hannanum()
+    nouns = han.nouns(processed_content)
+
+    STOPWORDS = []
+    new_nouns = [item for item in nouns if item not in STOPWORDS]
+    nouns = new_nouns
+
+    df = pd.DataFrame({'word': nouns})
+    df['len'] = df['word'].str.len()
+    df = df.query('len >= 2')
+    df = df.sort_values(by=['len'], ascending=True)
+
+    df2 = df.groupby(['word'], as_index=False).agg(n=('word', 'count')).sort_values(['n'], ascending=False)
+    top100 = df2.reset_index(drop=True).head(100)
+    top100 = top100.set_index('word')
+    dict_df = top100.to_dict()['n']
+
+    icon = Image.open('static\img\cloud.png')
+    img = Image.new('RGB', icon.size, (255, 255, 255))
+    img.paste(icon, icon)
+    img = np.array(img)
+
+    if platform.system() == 'Windows':
+        font_path = "C:/Windows/Fonts/malgun.ttf"
+    elif platform.system() == "Darwin":
+        font_path = "/Users/$USER/Library/Fonts/AppleGothic.ttf"
+
+    wc = WordCloud(random_state=1234, 
+                    font_path=font_path, 
+                    width=800,
+                    height=400,
+                    background_color='white',
+                    mask=img)
+
+    wc_img = wc.generate_from_frequencies(dict_df)
+
+    plt.figure(figsize=(15, 10))
+    plt.axis('off')
+    plt.imshow(wc_img)
+    plt.savefig('./static/bcontent.png')  # 워드클라우드를 static 폴더에 저장
+    plt.close()
+
 # Flask 라우팅 설정
 @app.route('/')
 def index():
@@ -430,6 +510,11 @@ def index():
 @app.route('/graph')
 def graph():
     return Response(generate_graph(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/wordcloud')
+def wordcloud():
+    create_wordcloud()
+    return render_template('wordcloud.html')
 
 # Flask 서버 시작
 if __name__ == '__main__':
