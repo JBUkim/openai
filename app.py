@@ -13,6 +13,7 @@ import io
 import csv
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib import font_manager, rc
+import threading
 
 api_key=os.getenv('OPENAI_API_KEY')
 
@@ -501,6 +502,67 @@ def create_wordcloud():
     plt.imshow(wc_img)
     plt.savefig('./static/bcontent.png')  # 워드클라우드를 static 폴더에 저장
     plt.close()
+    
+# 검색어 데이터 분석
+def search_data():
+    conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
+    cs = conn.cursor()
+    cs.execute("SELECT word, cnt FROM search")
+    return cs.fetchall()
+
+def update_graph():
+    try:
+        previous_data = None
+
+        while True:
+            data = search_data()
+            sorted_data = sorted(data, key=lambda x: x[1], reverse=True)[:5]
+            
+            # 이전 데이터와 현재 데이터를 비교
+            if sorted_data != previous_data:
+                words = [row[0] for row in sorted_data]
+                counts = [row[1] for row in sorted_data]
+                
+                # CSV 파일로 저장
+                with open('recipe.csv', 'w', newline='') as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    csvwriter.writerow(['WORD', 'CNT'])
+                    csvwriter.writerows(sorted_data)
+                
+                # CSV 파일 읽기
+                with open('recipe.csv', 'r') as csvfile:
+                    csvreader = csv.reader(csvfile)
+                    next(csvreader)  # 헤더 건너뛰기
+                    data_from_csv = list(csvreader)
+                    
+                words = [row[0] for row in data_from_csv]
+                counts = [int(row[1]) for row in data_from_csv]
+                
+                f = plt.figure(figsize=(10, 5))
+                plt.bar(words, counts)
+                plt.xlabel('레시피 이름')
+                plt.ylabel('검색 횟수')
+                plt.title('가장 많이 찾은 레시피')
+                plt.savefig("C:\\kd\\ws_java\\team3_v2sbm3c\\src\\main\\resources\\static\\images\\graph1.png")
+                    
+                # webbrowser.open_new('graph.html')
+                print("그래프가 업데이트되고 저장되었습니다.")
+                plt.close()
+                
+                # 현재 데이터를 이전 데이터로 저장
+                previous_data = data
+
+            time.sleep(1)  # 1초마다 업데이트
+
+    except KeyboardInterrupt:
+        print("실시간 그래프 업데이트가 중지되었습니다.")
+
+    finally:
+        cs.close()
+        conn.close()
+
+
+
 
 # Flask 라우팅 설정
 @app.route('/')
@@ -518,4 +580,6 @@ def wordcloud():
 
 # Flask 서버 시작
 if __name__ == '__main__':
+    graph_thread = threading.Thread(target=update_graph)
+    graph_thread.start()
     app.run(host="0.0.0.0", port=5000, debug=True)  # 0.0.0.0: 모든 Host 에서 접속 가능
