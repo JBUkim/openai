@@ -3,10 +3,16 @@ import os
 import base64
 import requests
 from PIL import Image
-from flask import Flask, redirect, request, render_template, session, jsonify
+from flask import Flask, request, render_template, session, jsonify, Response
 from flask_cors import CORS
 import cx_Oracle
 import tool
+import matplotlib.pyplot as plt
+import time
+import io
+import csv
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib import font_manager, rc
 
 api_key=os.getenv('OPENAI_API_KEY')
 
@@ -118,7 +124,7 @@ from llama_index.core import ServiceContext, VectorStoreIndex, SimpleDirectoryRe
 logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL, force=True)
 
 # # 문서 로드(data 폴더에 문서를 넣어 두세요)
-# documents = SimpleDirectoryReader("data").load_data() # data 폴더에 pdf 저장
+# documents = SimpleDirectoryReader("data").load_data() # /openai/llama_index/data/chatbot.txt 저장
 
 # from llama_index.llms.openai import OpenAI
 
@@ -235,7 +241,7 @@ def menu_web_proc():
     else: # 25 MB 이하
         if f and allowed_file(f.filename): # 허용 가능한 파일 확장자인지 확인
             # 저장할 경로 지정 (예: 'uploads' 폴더에 저장)
-            upload_folder = 'C:\\kd\\deploy\\team3_v2sbm3c\\content\\storage\\'
+            upload_folder = '../../deploy/team3_v2sbm3c/contents/storage'
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
 
@@ -351,6 +357,80 @@ def menu_web_proc():
 
     
     return resp
+
+# ## 데이터 분석 그래프 최신화
+
+# Oracle DB 연결 설정
+conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
+cs = conn.cursor()
+
+# 데이터베이스에서 데이터 가져오기 함수
+def fetch_data():
+    query = """
+        SELECT 
+            r.SPICENO,
+            s.SPICENAME,
+            COUNT(r.SPICENO) AS cnt
+        FROM 
+            RECOMMEND r
+        JOIN 
+            SPICE s ON r.SPICENO = s.SPICENO
+        GROUP BY 
+            r.SPICENO, s.SPICENAME
+        """
+    
+    cs.execute(query)
+    return cs.fetchall()
+
+# CSV 파일로 데이터 저장 함수
+def save_to_csv(data, filename='recommend_data.csv'):
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['SPICENO', 'SPICENAME', 'COUNT'])
+        writer.writerows(data)
+
+# 실시간 그래프 업데이트 함수
+def generate_graph():
+    while True:
+        data = fetch_data()
+
+        nos = [row[0] for row in data]
+        names = [row[1] for row in data]
+        counts = [row[2] for row in data]
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.bar(names, counts)
+        ax.set_xlabel('향신료 이름')
+        ax.set_ylabel('추천 횟수')
+        ax.set_title('향신료 추천')
+
+        # 그래프 이미지를 바이너리로 변환
+        output = io.BytesIO()
+        FigureCanvas(fig).print_png(output)
+        plt.close(fig)
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/png\r\n\r\n' + output.getvalue() + b'\r\n')
+
+        # 데이터를 CSV 파일로 저장
+        save_to_csv(data)
+
+        time.sleep(1)  # 1초마다 업데이트
         
+# Matplotlib 한글 폰트 설정
+font_path = 'C:/Windows/Fonts/malgun.ttf'
+font_name = font_manager.FontProperties(fname=font_path).get_name()
+rc('font', family=font_name)
+
+# Flask 라우팅 설정
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/graph')
+def graph():
+    return Response(generate_graph(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Flask 서버 시작
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)  # 0.0.0.0: 모든 Host 에서 접속 가능, python llama_chatbot.py
+    app.run(host="0.0.0.0", port=5000, debug=True)  # 0.0.0.0: 모든 Host 에서 접속 가능
