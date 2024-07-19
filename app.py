@@ -1,19 +1,27 @@
-import json
 import os
-import base64
+import re
+import sys
+import time
+import threading
 import requests
+import base64
+import csv
+import io
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import Counter
 from PIL import Image
+from matplotlib import font_manager, rc
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from flask import Flask, request, render_template, session, jsonify, Response
 from flask_cors import CORS
 import cx_Oracle
+from konlpy.tag import Hannanum
+from cloud import WordCloud  # Assuming 'cloud' refers to the 'wordcloud' library
 import tool
-import matplotlib.pyplot as plt
-import time
-import io
-import csv
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib import font_manager, rc
-import threading
+from llama_index.core import StorageContext, load_index_from_storage
+import logging
 
 api_key=os.getenv('OPENAI_API_KEY')
 
@@ -117,40 +125,8 @@ def lunch_proc():
 # Chatbot 관련
 # ------------------------------------------------------------------------------------------------
 
-import logging
-import sys
-from llama_index.core import ServiceContext, VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
-
 # 로그 레벨 설정
 logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL, force=True)
-
-# # 문서 로드(data 폴더에 문서를 넣어 두세요)
-# documents = SimpleDirectoryReader("data").load_data() # /openai/llama_index/data/chatbot.txt 저장
-
-# from llama_index.llms.openai import OpenAI
-
-# llm_predictor = OpenAI( 
-#     model="gpt-3.5-turbo",
-#     temperature=0)
-
-# # ServiceContext 준비
-# service_context = ServiceContext.from_defaults(
-#     llm_predictor = llm_predictor
-# )
-
-# # 인덱스 생성
-# index = VectorStoreIndex.from_documents(
-#     documents, 
-#     service_context=service_context
-# )
-
-# # 인덱스 생성
-# index = VectorStoreIndex.from_documents(documents)
-
-# # 인덱스 저장, 기본 폴더: storage
-# index.storage_context.persist()
-
-# ------------------------------------------------------------------------------------------------
 
 # 인덱스 로드
 storage_context = StorageContext.from_defaults(persist_dir="./storage") # /openai/llama_index/storage 폴더 생성
@@ -158,12 +134,6 @@ index = load_index_from_storage(storage_context)
 
 # 쿼리 엔진 생성
 query_engine = index.as_query_engine()
-
-# ------------------------------------------------------------------------------------------------
-
-@app.get("/chatbot_scroll") # 스크롤 테스트, http://localhost:5000/chatbot_scroll
-def chatbot_scroll():
-    return render_template("chatbot_scroll.html")
 
 @app.get("/chatbot") # http://localhost:5000/chatbot
 def chatbot_form():
@@ -179,19 +149,14 @@ def chatbot_proc():
     # return;
 
     response = query_engine.query(question)
-    # print('-> response:', response)
-    # print('-> type(response):', type(response)) # <class 'llama_index.response.schema.Response'>
-    # print('-> response.response:', response.response)
-    # print('-> type(response.response):', type(response.response)) # <class 'str'>
     
     obj = {
         "res": response.response
     }
     
-    # print('-' * 80)
-    # print('-> jsonify(obj):', jsonify(obj)) # dictionary -> json string
-    # print('-' * 80)
     return jsonify(obj) # dictionary -> json + HTTP 응답 객체
+
+# ------------------------------------------------------------------------------------------------
 
 # 허용 가능한 파일 확장자 설정 (예: 이미지 파일만 허용하도록 설정)
 app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'png', 'gif'}
@@ -362,8 +327,9 @@ def menu_web_proc():
     
     return resp
 
-# ## 데이터 분석 그래프 최신화
-
+# ------------------------------------------------------------------------------------------------
+## 데이터 분석 그래프 최신화
+# ------------------------------------------------------------------------------------------------
 # Oracle DB 연결 설정
 conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
 cs = conn.cursor()
@@ -414,32 +380,21 @@ def generate_graph():
         plt.close(fig)
 
         yield (b'--frame\r\n'
-               b'Content-Type: image/png\r\n\r\n' + output.getvalue() + b'\r\n')
+                b'Content-Type: image/png\r\n\r\n' + output.getvalue() + b'\r\n')
 
         # 데이터를 CSV 파일로 저장
         save_to_csv(data)
 
         time.sleep(1)  # 1초마다 업데이트
+
+# ------------------------------------------------------------------------------------------------
         
 # Matplotlib 한글 폰트 설정
 font_path = 'C:/Windows/Fonts/malgun.ttf'
 font_name = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font_name)
 
-from flask import Flask, render_template
-
-import platform
-import matplotlib.pyplot as plt
-from matplotlib import font_manager, rc
-import re
-from collections import Counter
-import numpy as np
-from konlpy.tag import Hannanum
-import pandas as pd
-from wordcloud import WordCloud
-from PIL import Image
-
-
+# ------------------------------------------------------------------------------------------------
 
 # 데이터베이스에서 BCONTENT 필드의 데이터를 가져오는 함수
 def cloud_data():
@@ -503,6 +458,10 @@ def create_wordcloud():
     plt.savefig('./static/bcontent.png')  # 워드클라우드를 static 폴더에 저장
     plt.close()
     
+# ------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------
 # 검색어 데이터 분석
 def search_data():
     conn = cx_Oracle.connect('team3/69017000@44.205.155.56:1521/XE')
@@ -518,41 +477,46 @@ def update_graph():
             data = search_data()
             sorted_data = sorted(data, key=lambda x: x[1], reverse=True)[:5]
             
-            # 이전 데이터와 현재 데이터를 비교
             if sorted_data != previous_data:
                 words = [row[0] for row in sorted_data]
                 counts = [row[1] for row in sorted_data]
                 
-                # CSV 파일로 저장
                 with open('recipe.csv', 'w', newline='') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     csvwriter.writerow(['WORD', 'CNT'])
                     csvwriter.writerows(sorted_data)
                 
-                # CSV 파일 읽기
                 with open('recipe.csv', 'r') as csvfile:
                     csvreader = csv.reader(csvfile)
-                    next(csvreader)  # 헤더 건너뛰기
+                    next(csvreader)
                     data_from_csv = list(csvreader)
                     
                 words = [row[0] for row in data_from_csv]
                 counts = [int(row[1]) for row in data_from_csv]
                 
                 f = plt.figure(figsize=(10, 5))
-                plt.bar(words, counts)
-                plt.xlabel('레시피 이름')
-                plt.ylabel('검색 횟수')
-                plt.title('가장 많이 찾은 레시피')
-                plt.savefig("C:\\kd\\ws_java\\team3_v2sbm3c\\src\\main\\resources\\static\\images\\graph1.png")
-                    
-                # webbrowser.open_new('graph.html')
-                print("그래프가 업데이트되고 저장되었습니다.")
-                plt.close()
+                bars = plt.bar(words, counts, color='skyblue')
                 
-                # 현재 데이터를 이전 데이터로 저장
+                plt.xlabel('검색한 레시피', fontsize=14)
+                plt.ylabel('검색 횟수', fontsize=14)
+                plt.title('검색 순위', fontsize=16)
+                
+                plt.xticks(fontsize=12)
+                plt.yticks(fontsize=12)
+                
+                for bar in bars:
+                    yval = bar.get_height()
+                    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, int(yval), 
+                                ha='center', va='bottom', fontsize=10)
+                    
+                plt.ylim(0, max(counts) * 1.1)  # y축의 최대값을 기존 최대값의 110%로 설정
+                
+                plt.savefig("C:\\kd\\ws_java\\team3_v2sbm3c\\src\\main\\resources\\static\\images\\graph1.png")
+                plt.close(f)
+                
                 previous_data = data
 
-            time.sleep(1)  # 1초마다 업데이트
+            time.sleep(1)
 
     except KeyboardInterrupt:
         print("실시간 그래프 업데이트가 중지되었습니다.")
@@ -561,13 +525,7 @@ def update_graph():
         cs.close()
         conn.close()
 
-
-
-
-# Flask 라우팅 설정
-@app.route('/')
-def index():
-    return render_template('index.html')
+# ------------------------------------------------------------------------------------------------
 
 @app.route('/graph')
 def graph():

@@ -67,7 +67,7 @@
             document.getElementById("lunch").setAttribute("value", lunch);
             document.getElementById("processing").innerHTML = '<img src="../static/img/progress.gif" style="width: 20%; margin-top: 3px;">';
 
-            await fetch("http://192.168.2.37:5000/lunch", {
+            await fetch("http://172.30.1.12:5000/lunch", {
               method: "post",
               headers: {
                 "Content-Type": "application/json",

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Whisper Speech-to-Text 사용하기</title>
+    <title>이미지 검색</title>
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet" />
@@ -32,7 +32,7 @@
 
           document.getElementById("processing").innerHTML = '<img src="../static/img/progress.gif" style="width: 20%; margin-top: 3px;">';
 
-          await fetch("http://192.168.2.37:5000/menu_web", {
+          await fetch("http://172.30.1.12:5000//menu_web", {
             method: "post",
             body: form_data,
           })
